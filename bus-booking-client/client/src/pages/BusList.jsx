@@ -43,32 +43,40 @@ const BusList = () => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <section className="p-6 bg-gray-100">
-      <h1 className="text-3xl font-bold mb-6 text-center">Available Buses</h1>
-      <div className="flex flex-row gap-3 items-center">
-        {buses.map((bus) => (
-          <div key={bus.id} className="bg-white p-4 rounded-lg shadow-lg w-full max-w-md mb-4 flex flex-col">
-            <h2 className="text-xl font-semibold mb-2">{bus.companyName}</h2>
-            <p className="text-gray-700"><strong>Bus Type:</strong> {bus.busType}</p>
-            <p className="text-gray-700"><strong>From:</strong> {bus.startCity}</p>
-            <p className="text-gray-700"><strong>To:</strong> {bus.destination}</p>
-            <p className="text-gray-700"><strong>Total Seats:</strong> {bus.totalSeats}</p>
-            <p className="text-gray-700"><strong>Available Seats:</strong> {bus.availableSeats}</p>
-            <p className="text-gray-700"><strong>Price per Seat:</strong> {bus.pricePerSeat}</p>
+    <div className="container mx-auto p-4">
+    <h2 className="text-2xl font-bold mb-4">Available Buses</h2>
+    <div className="space-y-4">
+      {buses.map((bus) => (
+        <div key={bus.id} className="border p-4 rounded-lg shadow flex justify-between items-center">
+          <div>
+          {/* <h2 className="text-xl font-semibold mb-2">{bus.companyName}</h2> */}
+          <p className="text-gray-700"><strong>Bus Type:</strong> {bus.busType}</p>
+          <p className="text-gray-700"><strong>From:</strong> {bus.startCity}</p>
+          <p className="text-gray-700"><strong>To:</strong> {bus.destination}</p>
+          <p className="text-gray-700"><strong>Total Seats:</strong> {bus.totalSeats}</p>
+          <p className="text-gray-700"><strong>Available Seats:</strong> {bus.availableSeats}</p>
+          <p className="text-gray-700"><strong>Price per Seat:</strong> {bus.pricePerSeat}</p>
+          </div>
+          <div>
             <Link
-              to={{
-                pathname: '/booking',
-                state: { busId: bus.id, pricePerSeat: bus.pricePerSeat }
-              }}
-              className="mt-4 w-full bg-[#d84e55]text-white py-2 rounded-md hover:bg-red-600 transition text-center"
+              to='/booking'
+              onClick={() => handleBooking(bus.id)}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
             >
-              Book Ticket
+              Book Now
             </Link>
           </div>
-        ))}
-      </div>
-    </section>
+        </div>
+      ))}
+    </div>
+  </div>
   );
 };
 
 export default BusList;
+
+
+
+
+
+

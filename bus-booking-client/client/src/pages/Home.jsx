@@ -1,6 +1,13 @@
 import { Bus, Calendar, ChevronDown, Headphones, User } from 'lucide-react'
+import { useNavigate } from 'react-router-dom';
 
 export default function App() {
+
+  const navigate = useNavigate();
+  const handleSearch = () => {
+    navigate(`/bus`);
+  };
+
   return (
     <div className="min-h-screen bg-white text-gray-800">
       <header className="bg-white shadow-sm">
@@ -45,7 +52,7 @@ export default function App() {
                 <Calendar size={24} className="text-gray-400 mr-2"  />
                 <input placeholder="Date" className="w-full outline-none" />
               </div>
-              <button className="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-[#d84e55] transition">
+              <button to='/bus'  onClick={handleSearch} className="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-[#d84e55] transition">
                 SEARCH BUSES
               </button>
             </div>

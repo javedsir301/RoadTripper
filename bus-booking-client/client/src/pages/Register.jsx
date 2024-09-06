@@ -22,7 +22,6 @@ const Register = () => {
         try {
             const response = await axios.post('http://localhost:5000/auth/register', values);
             if (response.status === 201) {
-                // Show an alert message
                 alert('Your registration is complete');
                 setTimeout(() => {
                     navigate('/login');

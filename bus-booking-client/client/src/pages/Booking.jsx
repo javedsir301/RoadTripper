@@ -1,106 +1,72 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import axios from 'axios';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-const BookingPage = () => {
-  const location = useLocation();
-  const { busId, pricePerSeat } = location.state || {};
-
-  const [userId, setUserId] = useState('');
-  const [totalSeats, setTotalSeats] = useState(1);
-  const [totalPrice, setTotalPrice] = useState(pricePerSeat || 0);
+export default function BookingPage() {
+  const [searchParams] = useSearchParams();
+  const busId = parseInt(searchParams.get('busId') || '1');
   const [bus, setBus] = useState(null);
-  const [error, setError] = useState(null);
+  const [seats, setSeats] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBusDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/buses/${busId}`);
-        setBus(response.data);
-      } catch (err) {
-        setError('Failed to fetch bus details');
+        const response = await fetch(`http://localhost:5000/bus/${busId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch bus details');
+        }
+        const busData = await response.json();
+        setBus(busData);
+      } catch (error) {
+        console.error('Error fetching bus details:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (busId) {
-      fetchBusDetails();
-    }
+    fetchBusDetails();
   }, [busId]);
 
-  const handleSeatsChange = (e) => {
-    const seats = e.target.value;
-    setTotalSeats(seats);
-    setTotalPrice(seats * pricePerSeat);
+  const totalCost = bus ? bus.pricePerSeat * seats : 0;
+
+  const handleConfirm = () => {
+    navigate(`/payment?total=${totalCost}`);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      await axios.post('http://localhost:5000/bookings', {
-        userId,
-        busId,
-        totalSeats,
-        totalPrice
-      });
-      alert('Booking successful!');
-    } catch (err) {
-      setError('Failed to book the tickets');
-    }
-  };
-
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (loading) return <p>Loading...</p>;
+  if (!bus) return <p>Bus not found</p>;
 
   return (
-    <section className="p-6 bg-gray-100">
-      <h1 className="text-3xl font-bold mb-6 text-center">Book Your Tickets</h1>
-      <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
-        {bus && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Bus Details</h2>
-            <p className="text-gray-700"><strong>Bus Name:</strong> {bus.companyName}</p>
-            <p className="text-gray-700"><strong>From:</strong> {bus.startCity}</p>
-            <p className="text-gray-700"><strong>To:</strong> {bus.destination}</p>
-            <p className="text-gray-700"><strong>Total Seats:</strong> {bus.totalSeats}</p>
-            <p className="text-gray-700"><strong>Available Seats:</strong> {bus.availableSeats}</p>
-          </div>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="form-group">
-            <label className="block text-gray-700">User ID</label>
-            <input
-              type="text"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              className="form-control rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label className="block text-gray-700">Total Seats</label>
-            <input
-              type="text"
-              value={totalSeats}
-              onChange={handleSeatsChange}
-              min="1"
-              max={bus?.availableSeats || 0}
-              className="form-control rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-500 focus:ring-opacity-50"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <p className="text-gray-700"><strong>Total Price:</strong> {totalPrice}</p>
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-[#d84e55] text-white py-2 rounded-md hover:bg-red-600 transition"
-          >
-            Confirm Your Tickets
-          </button>
-        </form>
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4">Booking Details</h2>
+      <div className="border p-4 rounded-lg shadow">
+        <h3 className="font-bold text-lg mb-2">{bus.name}</h3>
+        <h2 className="text-xl font-semibold mb-2">{bus.companyName}</h2>
+        <p>Departure: {bus.startCity}</p>
+        <p>Arrival: {bus.destination}</p>
+        <p className="font-bold mt-4">Price per seat: ₹ {bus.pricePerSeat}</p>
+        <div className="mt-4">
+          <label htmlFor="seats" className="block mb-2">Number of seats:</label>
+          <input
+            type="number"
+            id="seats"
+            min="1"
+            max="10"
+            value={seats}
+            onChange={(e) => setSeats(parseInt(e.target.value, 10))}
+            className="border p-2 rounded w-full"
+          />
+        </div>
+        <p className="font-bold text-lg mt-4">Total Cost: ₹ {totalCost}</p>
+        <button
+         to='/payment'
+          onClick={handleConfirm}
+          className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+        >
+          Confirm Booking
+        </button>
       </div>
-    </section>
+    </div>
   );
-};
-
-export default BookingPage;
+}
