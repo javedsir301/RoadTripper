@@ -50,13 +50,13 @@ const BusList = () => {
               <p className="text-gray-700"><strong>Bus Type:</strong> {bus.busType}</p>
               <p className="text-gray-700"><strong>From:</strong> {bus.startCity}</p>
               <p className="text-gray-700"><strong>To:</strong> {bus.destination}</p>
-              <p className="text-gray-700"><strong>Total Seats:</strong> {bus.totalSeats}</p>
+              <p className="text-gray-700"><strong>Bus Number:</strong> {bus.busNumber}</p>
               <p className="text-gray-700"><strong>Available Seats:</strong> {bus.availableSeats}</p>
               <p className="text-gray-700"><strong>Price per Seat:</strong> {bus.pricePerSeat}</p>
             </div>
             <div>
               <Link
-                to='/booking'
+                to={`/booking?busId=${bus.id}`}
                 className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
               >
                 Book Now
