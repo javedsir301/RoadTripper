@@ -4,19 +4,21 @@ import axios from 'axios';
 import IMAGES from '../assets/register-bus.png'; 
 
 const Register = () => {
-    const [values, setValues] = useState({
-        username: '',
+    const [formData, setFormData] = useState({
+        name: '',
         email: '',
         password: '',
         mobile: '',
         gender: '',
-        dateOfBirth: ''
+        dob: ''
     });
-    const [errors, setErrors] = useState({});
-    const navigate = useNavigate();
 
-    const handleChanges = (e) => {
-        setValues({ ...values, [e.target.name]: e.target.value });
+    const [error, setError] = useState(null);
+    const navigate = useNavigate(); 
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
     };
 
     const validate = () => {
@@ -24,36 +26,36 @@ const Register = () => {
         let errorMessage = '';
         
         let anyFieldFilled = false;
-        if (values.username) anyFieldFilled = true;
-        if (values.email) anyFieldFilled = true;
-        if (values.password) anyFieldFilled = true;
-        if (values.mobile) anyFieldFilled = true;
-        if (values.gender) anyFieldFilled = true;
-        if (values.dateOfBirth) anyFieldFilled = true;
+        if (formData.name) anyFieldFilled = true;
+        if (formData.email) anyFieldFilled = true;
+        if (formData.password) anyFieldFilled = true;
+        if (formData.mobile) anyFieldFilled = true;
+        if (formData.gender) anyFieldFilled = true;
+        if (formData.dob) anyFieldFilled = true;
     
-        if (!values.username) {
-            newErrors.username = 'Username is required';
+        if (!formData.name) {
+            newErrors.name = 'Name is required';
         }
-        if (!values.email) {
+        if (!formData.email) {
             newErrors.email = 'Email is required';
-        } else if (!/\S+@\S+\.\S+/.test(values.email)) {
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = 'Email is invalid';
         }
-        if (!values.password) {
+        if (!formData.password) {
             newErrors.password = 'Password is required';
-        } else if (values.password.length < 6) {
+        } else if (formData.password.length < 6) {
             newErrors.password = 'Password must be at least 6 characters long';
         }
-        if (!values.mobile) {
+        if (!formData.mobile) {
             newErrors.mobile = 'Mobile number is required';
-        } else if (!/^\d{10}$/.test(values.mobile)) {
+        } else if (!/^\d{10}$/.test(formData.mobile)) {
             newErrors.mobile = 'Mobile number should be 10 digits';
         }
-        if (!values.gender) {
+        if (!formData.gender) {
             newErrors.gender = 'Gender is required';
         }
-        if (!values.dateOfBirth) {
-            newErrors.dateOfBirth = 'Date of Birth is required';
+        if (!formData.dob) {
+            newErrors.dob = 'Date of Birth is required';
         }
     
         if (!anyFieldFilled) {
@@ -65,34 +67,21 @@ const Register = () => {
             }
         }
     
-        setErrors(newErrors);
+        setError(errorMessage);
         return errorMessage;
     };
-    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const generalErrorMessage = validate();
-        if (generalErrorMessage) {
-            alert(generalErrorMessage);
+        const validationError = validate();
+        if (validationError) {
             return;
         }
-
         try {
-            const response = await axios.post('http://localhost:5000/auth/register', values, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            if (response.status === 201) {
-                alert('Your registration is complete');
-                setTimeout(() => {
-                    navigate('/login');
-                }, 1000);
-            }
+            await axios.post('http://localhost:5000/auth/register', formData);
+            navigate('/login'); 
         } catch (err) {
-            console.error('Registration error:', err.response?.data?.message || err.message);
-            alert('Registration failed. Please try again.');
+            setError(err.response?.data?.error || 'Registration failed');
         }
     };
 
@@ -117,14 +106,14 @@ const Register = () => {
                     <h2 className='text-lg font-bold mb-4 text-center'>Register</h2>
                     <form onSubmit={handleSubmit} className='flex flex-col'>
                         <div className="mb-3">
-                            <label htmlFor="username" className='block text-gray-700'>Username</label>
+                            <label htmlFor="name" className='block text-gray-700'>Name</label>
                             <input
                                 type="text"
-                                placeholder='Enter Username'
+                                placeholder='Enter Name'
                                 className='w-full px-3 py-2 border rounded-md'
-                                name="username"
-                                value={values.username}
-                                onChange={handleChanges}
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="mb-3">
@@ -134,8 +123,8 @@ const Register = () => {
                                 placeholder='Enter Email'
                                 className='w-full px-3 py-2 border rounded-md'
                                 name="email"
-                                value={values.email}
-                                onChange={handleChanges}
+                                value={formData.email}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="mb-3">
@@ -145,8 +134,8 @@ const Register = () => {
                                 placeholder='Enter Password'
                                 className='w-full px-3 py-2 border rounded-md'
                                 name="password"
-                                value={values.password}
-                                onChange={handleChanges}
+                                value={formData.password}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="mb-3">
@@ -156,8 +145,8 @@ const Register = () => {
                                 placeholder='Enter Mobile Number'
                                 className='w-full px-3 py-2 border rounded-md'
                                 name="mobile"
-                                value={values.mobile}
-                                onChange={handleChanges}
+                                value={formData.mobile}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="mb-3">
@@ -165,8 +154,8 @@ const Register = () => {
                             <select
                                 name="gender"
                                 className='w-full px-3 py-2 border rounded-md'
-                                value={values.gender}
-                                onChange={handleChanges}
+                                value={formData.gender}
+                                onChange={handleChange}
                             >
                                 <option value="">Select Gender</option>
                                 <option value="male">Male</option>
@@ -175,13 +164,13 @@ const Register = () => {
                             </select>
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="dateOfBirth" className='block text-gray-700'>Date of Birth</label>
+                            <label htmlFor="dob" className='block text-gray-700'>Date of Birth</label>
                             <input
                                 type="date"
                                 className='w-full px-3 py-2 border rounded-md'
-                                name="dateOfBirth"
-                                value={values.dateOfBirth}
-                                onChange={handleChanges}
+                                name="dob"
+                                value={formData.dob}
+                                onChange={handleChange}
                             />
                         </div>
                         <button
